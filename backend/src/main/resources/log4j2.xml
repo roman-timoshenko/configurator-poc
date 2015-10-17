@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <!-- вывод логов в ERR поток -->
+        <Console name="Console" target="SYSTEM_ERR">
+            <!--<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>-->
+            <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- отображаемый уровень логов по-умолчанию -->
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <!-- включение логгинга запросов хибернейта -->
+        <Logger name="org.hibernate.SQL" level="DEBUG"/>
+        <!-- включение логгинга запросов хибернейта -->
+        <Logger name="org.hibernate.loader.hql" level="TRACE"/>
+    </Loggers>
+</Configuration>

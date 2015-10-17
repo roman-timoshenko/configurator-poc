@@ -1,0 +1,72 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+       xsi:schemaLocation=
+               "http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+                http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+    <!--
+
+    Этот конфигурационный файл предназначен для тестов и не влияет другие модули.
+
+    -->
+
+
+    <!-- Встроенная база данных в памяти -->
+    <jdbc:embedded-database id="dataSource" type="HSQL"/>
+    <!-- ну или mysql база данных, не забудь закомментировать предыдущую: -->
+    <!--
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+        <property name="url" value="jdbc:mysql://hostname:3306/database" />
+        <property name="username" value="root" />
+        <property name="password" value="password" />
+    </bean>
+    -->
+
+
+    <!-- Объект класса, отвечающий за создание EntityManager'ов в репозиториях -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <!-- отсыл к базе данных -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- список пакетов для поиска объектов JPA -->
+        <property name="packagesToScan">
+            <list>
+                <value>ru.rsoft.configurator.core</value>
+            </list>
+        </property>
+        <!-- JPA провайдер сохранялки -->
+        <property name="persistenceProvider">
+            <bean class="org.hibernate.jpa.HibernatePersistenceProvider"/>
+        </property>
+        <property name="jpaProperties">
+            <props>
+                <!-- Включение поддержки DDL для автогенерации таблиц, например -->
+                <prop key="spring.jpa.generate-ddl">true</prop>
+                <!-- При старте, таблицы будут созданы или при возможности обновлены -->
+                <!--Валидные варианты: none, validate, update, create-drop-->
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- Объект класса, отвечающий за транзакционное поведение репозиториев (включаем транзакции) -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
+
+    <!-- Указания, где искать интерфейсы классов-репозиториев (папочка, где искать репозитории) -->
+    <jpa:repositories base-package="ru.rsoft.configurator.core" />
+    <!-- Указание, что транзакционность определяется аннотациями методов и классов
+    (включение управлением транзакциями с помощью аннотаций) -->
+    <tx:annotation-driven/>
+    <!-- Указание, что созданные Spring'ом объекты могут быть переданы с помощью аннотаций
+    и пакет, где, собственно, эти классы могут лежать (а то начнёт создавать всё подряд -
+    никакой памяти не хватит) -->
+    <context:component-scan base-package="ru.rsoft.configurator"/>
+</beans>
